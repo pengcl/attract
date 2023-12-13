@@ -1,0 +1,64 @@
+<template>
+    <view class="uni-container">
+        test
+    </view>
+</template>
+<script>
+    export default {
+        components: {
+        },
+		props: {
+			hasLeftWin: {
+				type: Boolean
+			},
+			leftWinActive: {
+				type: String
+			}
+		},
+        data() {
+            const list = [
+            ];
+            return {
+                list: list,
+            };
+        },
+        onShareAppMessage() {
+            return {
+                title: '欢迎体验uni-app',
+                path: '/pages/tabBar/API/API'
+            };
+        },
+        onNavigationBarButtonTap(e) {
+            uni.navigateTo({
+                url: '/pages/about/about'
+            });
+        },
+        onLoad() {
+        },
+        onReady() {
+        },
+        onShow() {
+            this.navigateFlag = false;
+        },
+        onHide() {
+        },
+
+		// #ifdef H5
+		watch:{
+		},
+		// #endif
+        methods: {
+            goDetailPage(e) {
+				console.log(e);
+				let url = '/pages/dashboard/' + e;
+				console.log(url);
+				uni.navigateTo({
+					url: url
+				})
+            },
+        }
+    };
+</script>
+
+<style>
+</style>
