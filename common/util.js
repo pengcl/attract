@@ -51,7 +51,7 @@ function friendlyDate(timestamp) {
 const validateControl = (control) => {
   let valid = true;
   if (control.required) {
-    valid = !!control.value;
+    valid = control.value !== '' && control.value !== null && control.value !== undefined;
     if (control.validates) {
       const prefixRegExp = String(control.validates);
       const regExp = new RegExp(prefixRegExp);

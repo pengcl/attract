@@ -20,7 +20,7 @@
 										v-model="form.controls[key].value" :placeholder="'请输入' + item.label" />
 								</template>
 								<template v-if="item.type === 'select'">
-									<picker @change="bindPickerChange" :value="index" :data-target="key"
+									<picker @change="bindPickerChange" :value="0" :default-value="0" :data-target="key"
 										:range="item.options" range-key="value">
 										<view class="uni-input">
 											{{typeof item.index === 'number' ? item.options[item.index].value : '请选择'}}
@@ -100,6 +100,7 @@
 				const {target} = e.currentTarget.dataset;
 				const item = this.form.controls[target];
 				const index = e.detail.value;
+				console.log(item.options, index);
 				const {
 					label,
 					value

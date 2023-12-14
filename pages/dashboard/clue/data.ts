@@ -50,6 +50,24 @@ export const leadsDto = {
 		target: 'af74c4ca1a2840d09ca77b4a2625317d',
 		options: []
 	},
+	sourceSubtype: {
+		required: true,
+		value: '0',
+		label: '来源小类',
+		valid: false,
+		validates: null,
+		type: 'select',
+		target: 'af74c4ca1a2840d09ca77b4a2625317d',
+		options: []
+	},
+	sourceDetail: {
+		required: false,
+		value: '',
+		label: '来源详情',
+		valid: false,
+		validates: null,
+		type: 'hidden',
+	},
 	level: {
 		required: false,
 		value: '',
@@ -57,8 +75,8 @@ export const leadsDto = {
 		valid: false,
 		validates: null,
 		type: 'chips',
-		target: '',
-		options: [{ label: 'A', value: 'A' }, { label: 'B', value: 'B' }, { label: 'C', value: 'C' }, { label: 'D', value: 'D' }]
+		target: '22e6325e882411eea75100163e127ceb',
+		options: []
 	},
 	phone: {
 		required: false,
@@ -88,14 +106,38 @@ export const leadsDto = {
 	},
 	customerType: {
 		required: true,
-		value: '',
+		value: 1,
 		label: '是否是企业客户',
 		valid: false,
 		validates: null,
 		type: 'switch'
+	},
+	nextFollowTime: {
+		required: false,
+		value: '',
+		label: '下次跟进时间',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	teamId: {
+		required: false,
+		value: '',
+		label: '团队id',
+		valid: false,
+		validates: null,
+		type: 'hidden'
 	}
 };
 export const leadsIntentionInfoDto = {
+	id: {
+		required: false,
+		value: '',
+		label: 'id',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
 	project: {
 		required: false,
 		value: '',
@@ -207,6 +249,14 @@ export const leadsIntentionInfoDto = {
 };
 
 export const enterpriseInfoDto = {
+	id: {
+		required: false,
+		value: '',
+		label: '地址',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
 	address: {
 		required: false,
 		value: '',
@@ -215,6 +265,22 @@ export const enterpriseInfoDto = {
 		validates: null,
 		type: 'string'
 	},
+	bankCard: {
+		required: false,
+		value: '',
+		label: '银行卡号',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	bankName: {
+		required: false,
+		value: '',
+		label: '开户行名称',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
 	brand: {
 		required: false,
 		value: '',
@@ -222,6 +288,30 @@ export const enterpriseInfoDto = {
 		valid: false,
 		validates: null,
 		type: 'integer'
+	},
+	businessType: {
+		required: false,
+		value: '',
+		label: '业态',
+		valid: false,
+		validates: null,
+		type: 'integer'
+	},
+	eleasingEnterpriseId: {
+		required: false,
+		value: '',
+		label: 'eleasing企业id',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	enterpriseDetailId: {
+		required: false,
+		value: '',
+		label: '企业详情表id',
+		valid: false,
+		validates: null,
+		type: 'hidden'
 	},
 	enterpriseType: {
 		required: false,
@@ -263,6 +353,30 @@ export const enterpriseInfoDto = {
 		validates: null,
 		type: 'string'
 	},
+	legalPerson: {
+		required: false,
+		value: '',
+		label: '法人',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	legalPersonIdNumber: {
+		required: false,
+		value: '',
+		label: '法人证件号码',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	legalPersonIdType: {
+		required: false,
+		value: '',
+		label: '法人证件类型',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
 	pid: {
 		required: false,
 		value: '',
@@ -296,12 +410,52 @@ export const enterpriseInfoDto = {
 		valid: false,
 		validates: null,
 		type: 'string'
+	},
+	updateTime: {
+		required: false,
+		value: '',
+		label: '更新时间',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	updateUserId: {
+		required: false,
+		value: '',
+		label: '更新人',
+		valid: false,
+		validates: null,
+		type: 'hidden'
 	}
 }
 
 export const contactsDto = {
+	id: {
+		required: false,
+		value: '',
+		label: 'id',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	pid:{
+		required: false,
+		value: '',
+		label: 'pid',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
+	pidType:{
+		required: false,
+		value: '',
+		label: 'pid',
+		valid: false,
+		validates: null,
+		type: 'hidden'
+	},
 	userName: {
-		required: true,
+		required: false,
 		value: '',
 		label: '联系人姓名',
 		valid: false,
@@ -358,7 +512,7 @@ export const contactsDto = {
 		validates: null,
 		type: 'select',
 		target: '',
-		options: [{ label: '1', value: '新赏家小程序' }, { label: '2', value: '手工录入' }]
+		options: [{ label: 1, value: '新赏家小程序' }, { label: 2, value: '手工录入' }]
 	}
 
 }

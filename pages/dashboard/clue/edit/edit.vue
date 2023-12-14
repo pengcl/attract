@@ -168,9 +168,9 @@
 				const contactsValue = this.getValue('contacts');
 				const data = {
 					leads:leadsValue,
-					enterpriseInfo: enterpriseInfoValue,
+					enterpriseInfo: null,
 					leadsIntentionInfo:leadsIntentionInfoValue,
-					contacts: contactsValue
+					contacts: null
 				};
 				clueSvc.create(data).then(res=>{
 					console.log(res);
