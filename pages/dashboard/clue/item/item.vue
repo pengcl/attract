@@ -1,6 +1,6 @@
 <template>
 	<view v-if="data" class="page page-has_title">
-		<page-profile :profile="'1'" ref='profile'></page-profile>
+		<page-profile v-if="profile" :profile="profile" ref='profile'></page-profile>
 		<view class="info-wrap" :class="this.fixed ? 'fixed' : ''">
 			<view class="info-tabs-placeholder"></view>
 			<view class="info-tabs">
@@ -35,13 +35,13 @@
 							</template>
 							<template v-slot:body>
 								<view class="list-item-body">
-									<view class="title">{{sub.name}}</view>
+									<view class="title">{{sub.recordTitle}}</view>
 									<view class="desc">
-										<view>{{sub.content}}</view>
+										<view>{{sub.recordContent}}</view>
 										<view class="thumbs">
 											<image v-for="(thumb,i) in sub.images" :src="thumb" :key="i"></image>
 										</view>
-										<view>跟进人：{{sub.follow_by}}</view>
+										<view>跟进人：{{sub.createUserName || '无' }}</view>
 									</view>
 								</view>
 							</template>
@@ -53,19 +53,29 @@
 				<template>
 					<uni-list class="keyvalues" :border="false">
 						<uni-list-item :border="false" note="名称" :rightText="data.details.customerName" />
-						<uni-list-item :border="false" note="来源" :rightText="map.sourceType.options[data.details.sourceType] ? map.sourceType.options[data.details.sourceType] : '无'" />
-						<uni-list-item :border="false" note="电话" :rightText="data.details.phone ? data.details.phone : '无'" />
+						<!-- <uni-list-item :border="false" note="来源"
+							:rightText="map.sourceType.options[data.details.sourceType] ? map.sourceType.options[data.details.sourceType] : '无'" /> -->
+						<uni-list-item :border="false" note="电话"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
 						<uni-list-item :border="false" note="下次联系时间" rightText="右侧文字" />
 					</uni-list>
 					<uni-list class="keyvalues" :border="false">
-						<uni-list-item :border="false" note="归属人" :rightText="data.details.phone ? data.details.phone : '无'" />
-						<uni-list-item :border="false" note="创建人" :rightText="data.details.phone ? data.details.phone : '无'" />
-						<uni-list-item :border="false" note="创建时间" :rightText="data.details.createTime ? data.details.createTime : '无'" />
-						<uni-list-item :border="false" note="最近修改时间" :rightText="data.details.updateTime ? data.details.updateTime : '无'" />
-						<uni-list-item :border="false" note="最近修改人" :rightText="data.details.phone ? data.details.phone : '无'" />
-						<uni-list-item :border="false" note="最近跟进时间" :rightText="data.details.phone ? data.details.phone : '无'" />
-						<uni-list-item :border="false" note="最近跟进人" :rightText="data.details.phone ? data.details.phone : '无'" />
-						<uni-list-item :border="false" note="前归属人" :rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="归属人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="创建人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="创建时间"
+							:rightText="data.details.createTime ? data.details.createTime : '无'" />
+						<uni-list-item :border="false" note="最近修改时间"
+							:rightText="data.details.updateTime ? data.details.updateTime : '无'" />
+						<uni-list-item :border="false" note="最近修改人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="最近跟进时间"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="最近跟进人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="前归属人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
 					</uni-list>
 				</template>
 			</view>
@@ -124,23 +134,23 @@
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc"
+	import {
+		followSvc
+	} from '../../follow/followSvc';
+	import moment from 'moment';
 
 	export default {
 		data() {
 			return {
 				id: null,
+				profile: null,
+				map: {},
 				data: {
 					details: {},
 					records: [],
 					relations: {
 						contacts: [],
 						members: []
-					}
-				},
-				map: {
-					sourceType: {
-						target: 'af74c4ca1a2840d09ca77b4a2625317d',
-						options: {}
 					}
 				},
 				fixed: false,
@@ -154,6 +164,7 @@
 				id
 			} = this.options;
 			this.id = id;
+			this.map = dictSvc.getMap();
 			this.initData();
 		},
 		created() {
@@ -173,9 +184,35 @@
 		},
 		methods: {
 			footEvent(e) {
+				console.log(e);
 				if (e.code === 'edit') {
-					uni.navigateTo({
-						url: `/pages/dashboard/clue/edit/edit?id=1`
+					this.$router.push({
+						path: '/pages/dashboard/clue/edit/edit',
+						query: {
+							id: this.data.details.id
+						}
+					});
+				}
+				if (e.code === 'follow') {
+					this.$router.push({
+						path: '/pages/dashboard/follow/edit/edit',
+						query: {
+							id: this.data.details.id
+						}
+					});
+				}
+				if (e.code === 'in') {
+					uni.showModal({
+						content: `是否确认将 ["${this.profile.name}"] 放入公客池！`,
+						confirmText: "确定",
+						cancelText: "取消",
+						success: (res) => {
+							if (res.confirm) {
+								clueSvc.inPool([this.id]).then(res => {
+									console.log(res);
+								});
+							}
+						}
 					})
 				}
 			},
@@ -188,67 +225,34 @@
 					});
 				}
 			},
-			async initKeyMap() {
-				for (const key in this.map) {
-					const res = await dictSvc.options(this.map[key].target);
-					const options = {};
-					res.forEach(item => {
-						options[item.label] = item.value;
-					});
-					const result = {
-						options,
-						target: this.map[key].target
-					};
-					this.$set(this.map, key, result);
-				}
-				console.log(this.map);
-			},
+			async initKeyMap() {},
 			initData() {
 				clueSvc.item(this.id).then(res => {
-					console.log(res);
 					this.$set(this.data, 'details', res);
+					const profile = {
+						name: res.customerName,
+						source: this.map[res.sourceType] + '-' + this.map[res.sourceSubtype],
+						dateTime: res.updateTime
+					};
+					this.profile = profile;
 				});
-				setTimeout(() => {
-					this.max = 0;
-					const records = [{
-							id: "2022-11-11",
-							items: [{
-									name: '录跟进-去电',
-									content: '说在忙，稍后联系，后续再做跟进',
-									images: ['/static/test.png', '/static/test.png'],
-									follow_by: '王帅帅',
-									time: '10:31'
-								},
-								{
-									name: '录跟进-去电',
-									content: '说在忙，稍后联系，后续再做跟进',
-									images: ['/static/test.png', '/static/test.png'],
-									follow_by: '王帅帅',
-									time: '10:21'
-								}
-							]
-						},
-						{
-							id: "2022-11-10",
-							items: [{
-									name: '录跟进-去电',
-									content: '说在忙，稍后联系，后续再做跟进',
-									images: ['/static/test.png', '/static/test.png'],
-									follow_by: '王帅帅',
-									time: '10:31'
-								},
-								{
-									name: '录跟进-去电',
-									content: '说在忙，稍后联系，后续再做跟进',
-									images: ['/static/test.png', '/static/test.png'],
-									follow_by: '王帅帅',
-									time: '10:21'
-								}
-							]
-						},
-					];
-					this.data.records = this.data.records.concat(records);
-				}, 300);
+				followSvc.find(this.id).then(res => {
+					const data = [];
+					res.forEach(item => {
+						item._id = moment(res.createTime).format('YYYY-MM-DD');
+						item.time = moment(res.createTime).format('mm:ss');
+						const currItem = data.filter(fi => fi._id === item._id)[0];
+						if (currItem) {
+							currItem.items.push(item);
+						} else {
+							data.push({
+								id: item._id,
+								items: [item]
+							})
+						}
+					});
+					this.$set(this.data, 'records', data);
+				})
 			}
 		}
 	}

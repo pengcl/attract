@@ -1,10 +1,11 @@
 <template>
 	<view class="page">
-		<page-form :name="'leadsForm'" :form="form.leadsForm"></page-form>
+		<page-form ref="leadsForm" :name="'leadsForm'" :form="form.leadsForm"></page-form>
 		<template v-if="more">
-			<page-form v-if="form.enterpriseInfoForm" :name="'enterpriseInfoForm'"
-				:form="form.enterpriseInfoForm"></page-form>
-			<page-form v-if="form.leadsIntentionInfoForm" :name="'leadsIntentionInfoForm'"
+			<page-form ref="enterpriseInfoForm"
+				v-if="form.enterpriseInfoForm && form.leadsForm.controls.customerType.value"
+				:name="'enterpriseInfoForm'" :form="form.enterpriseInfoForm"></page-form>
+			<page-form ref="leadsIntentionInfoForm" v-if="form.leadsIntentionInfoForm" :name="'leadsIntentionInfoForm'"
 				:form="form.leadsIntentionInfoForm"></page-form>
 			<uni-list-item class="form-control list-item" style="margin-top: 10rpx;">
 				<template v-slot:header>
@@ -14,13 +15,19 @@
 				</template>
 				<template v-slot:body>
 					<view class="list-item-body">
-						<label>
-							<checkbox value="读书" /><text>同步创建联系人</text>
-						</label>
+						<!-- <label>
+							<checkbox @change="checkboxChange" value="true" /><text>同步创建联系人</text>
+						</label> -->
+						<checkbox-group @change="checkboxChange">
+							<label>
+								<checkbox :value="'1'" :checked="false" />同步创建联系人
+							</label>
+						</checkbox-group>
 					</view>
 				</template>
 			</uni-list-item>
-			<page-form v-if="form.contactsForm" :name="'contactsForm'" :form="form.contactsForm"></page-form>
+			<page-form ref="contactsForm" v-if="form.contactsForm && isCreate" :name="'contactsForm'"
+				:form="form.contactsForm"></page-form>
 		</template>
 		<view class="more" @click="setMore">{{more ? '收起' : '展开'}}更多</view>
 		<view class="page-footer-placeholder"></view>
@@ -30,6 +37,7 @@
 		<!-- <view class="uni-popup">
 			<page-companies></page-companies>
 		</view> -->
+
 	</view>
 </template>
 <script>
@@ -45,11 +53,16 @@
 	import {
 		clueSvc
 	} from "../clueSvc";
+	import {
+		listToTree
+	} from "../../../../common/util.js"
 	export default {
 		data() {
 			return {
 				id: null,
 				data: null,
+				isCreate: false,
+				isEnterprise: false,
 				more: true,
 				form: {
 					valid: true,
@@ -64,22 +77,36 @@
 				id
 			} = options;
 			this.id = id;
+			await this.initForm();
 			if (this.id && this.id !== '0') {
 				this.getData();
-			} else {
-				await this.initForm();
-				uni.$on('inputChange', this.inputChange);
-				uni.$on('verifyChange', this.verifyChange)
 			}
+			uni.$on('inputChange', this.inputChange);
+			uni.$on('verifyChange', this.verifyChange);
 			// this.initData();
 		},
 		beforeDestroy() {
-		    uni.$off('inputChange',this.inputChange);
-			uni.$off('verifyChange',this.verifyChange);
+			uni.$off('inputChange', this.inputChange);
+			uni.$off('verifyChange', this.verifyChange);
+			uni.$off('footEvent', this.footChange);
+		},
+		watch: {
+			'form.leadsForm.controls.customerType.value': {
+				handler(newValue, oldValue) {
+					this.isEnterprise = newValue;
+				},
+				immediate: false,
+				deep: true
+			}
 		},
 		methods: {
 			setMore() {
 				this.more = !this.more;
+			},
+			checkboxChange(e) {
+
+				const values = e.detail.value;
+				this.isCreate = values[0] === '1';
 			},
 			verifyChange(e) {
 				const result = {
@@ -88,7 +115,7 @@
 				};
 				for (const key in this.form) {
 					if (typeof this.form[key] === 'object') {
-						if(!this.form[key].valid){
+						if (!this.form[key].valid) {
 							result.isLegal = false;
 							result.tips = this.form[key].error;
 						}
@@ -110,6 +137,16 @@
 							const res = await dictSvc.options(item.target);
 							item.options = res;
 						}
+					} else if (item.type === 'multiSelector') {
+						item.index = [null, null];
+						if (item.options[0].length === 0 && item.target) {
+							const res = await dictSvc.options(item.target);
+							const items = listToTree(res);
+							console.log(items);
+							item.options[0] = items;
+							item.options[1] = items[0].items;
+						}
+						console.log(item.options);
 					}
 				}
 				const form = {
@@ -134,7 +171,7 @@
 
 				// 初始化contactsForm
 				const leadsIntentionInfoControls = JSON.parse(JSON.stringify(leadsIntentionInfoDto));
-				console.log(leadsIntentionInfoControls);
+
 
 				if (!this.id || this.id === '0') {
 					leadsIntentionInfoControls.leadsId.required = false;
@@ -146,35 +183,103 @@
 
 			},
 			getData() {
-				console.log('getData');
+				clueSvc.item(this.id).then(res => {
+					this.setFormValue('leads', res);
+				});
 			},
-			getValue(key){
+			setFormValue(k, values) {
+				console.log(this.form);
+				const controls = this.form[k + 'Form'].controls;
+				for (const key in controls) {
+
+					if (key === 'pid') {
+						this.setValue(k, key, values['id']);
+					} else if (key === 'contactsTime') {
+						this.setValue(k, key, values['nextFollowTime']);
+					} else if (key === 'sources') {
+						this.setValue(k, key, [values.sourceType, values.sourceSubtype]);
+					} else {
+						this.setValue(k, key, values[key]);
+					}
+				}
+			},
+			getIndex(options, value) {
+				let index = null;
+				options.forEach((item, i) => {
+					if (item.label == value) {
+						index = i;
+					}
+				});
+				return index;
+			},
+			setValue(key, target, value) {
+				const control = this.form[key + 'Form'].controls[target];
+				control.value = value;
+				const {
+					type,
+					options
+				} = control;
+				if (type === 'select') {
+					control.index = this.getIndex(options, value);
+				}
+				if (type === 'chips') {
+					control.index = this.getIndex(options, value);
+				}
+				if (type === 'multiSelector') {
+					const {
+						targets
+					} = control;
+					control.index[0] = this.getIndex(options[0], value[0]);
+					control.options[1] = options[0][control.index[0]].items;
+					control.index[1] = this.getIndex(options[1], value[1]);
+				}
+				this.$refs[key + 'Form'].onInputValue(target, value);
+			},
+			getValue(key) {
 				const value = {};
 				const controls = this.form[key + 'Form'].controls;
 				for (const controlKey in controls) {
-					value[controlKey] = controls[controlKey].value;
+					const control = controls[controlKey];
+					if (!control.notPost) {
+						value[controlKey] = control.value;
+					}
 				}
 				return value;
 			},
+			add(data) {
+				clueSvc.create(data).then(res => {
+					console.log(res);
+				});
+			},
+			update(data) {
+				clueSvc.update(data).then(res => {
+					console.log(res);
+				});
+			},
 			submit() {
+				console.log(this.data);
 				console.log(this.form);
 				if (!this.form.valid) {
 					return false;
 				}
 				const keys = ['leads', 'enterpriseInfo', 'leadsIntentionInfo', 'contacts'];
 				const leadsValue = this.getValue('leads');
-				const enterpriseInfoValue = this.getValue('enterpriseInfo');
+				const enterpriseInfoValue = this.isEnterprise ? this.getValue('enterpriseInfo') : null;
 				const leadsIntentionInfoValue = this.getValue('leadsIntentionInfo');
-				const contactsValue = this.getValue('contacts');
+				const contactsValue = this.isCreate ? this.getValue('contacts') : null;
+				leadsValue.customerType = leadsValue.customerType ? '1' : '0';
 				const data = {
-					leads:leadsValue,
-					enterpriseInfo: null,
-					leadsIntentionInfo:leadsIntentionInfoValue,
-					contacts: null
+					leads: leadsValue,
+					enterpriseInfo: enterpriseInfoValue,
+					leadsIntentionInfo: leadsIntentionInfoValue,
+					contacts: contactsValue
 				};
-				clueSvc.create(data).then(res=>{
-					console.log(res);
-				});
+				if (this.id && this.id !== '0') {
+					data.leadsId = this.id;
+					this.update(data);
+				} else {
+					this.add(data);
+				}
 			}
 		}
 	}

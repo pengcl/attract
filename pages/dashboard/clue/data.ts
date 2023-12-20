@@ -40,15 +40,25 @@ export const leadsDto = {
 		validates: null,
 		type: 'input'
 	},
+	sources: {
+		required: true,
+		value: '',
+		label: '客户来源',
+		valid: false,
+		validates: null,
+		type: 'multiSelector',
+		target: 'af74c4ca1a2840d09ca77b4a2625317d',
+		options: [[], []],
+		targets: ['sourceType', 'sourceSubtype'],
+		notPost: true
+	},
 	sourceType: {
 		required: true,
 		value: '',
 		label: '客户来源',
 		valid: false,
 		validates: null,
-		type: 'select',
-		target: 'af74c4ca1a2840d09ca77b4a2625317d',
-		options: []
+		type: 'hidden'
 	},
 	sourceSubtype: {
 		required: true,
@@ -56,9 +66,7 @@ export const leadsDto = {
 		label: '来源小类',
 		valid: false,
 		validates: null,
-		type: 'select',
-		target: 'af74c4ca1a2840d09ca77b4a2625317d',
-		options: []
+		type: 'hidden'
 	},
 	sourceDetail: {
 		required: false,
@@ -69,7 +77,7 @@ export const leadsDto = {
 		type: 'hidden',
 	},
 	level: {
-		required: false,
+		required: true,
 		value: '',
 		label: '客户等级',
 		valid: false,
@@ -106,7 +114,7 @@ export const leadsDto = {
 	},
 	customerType: {
 		required: true,
-		value: 1,
+		value: false,
 		label: '是否是企业客户',
 		valid: false,
 		validates: null,
@@ -252,7 +260,7 @@ export const enterpriseInfoDto = {
 	id: {
 		required: false,
 		value: '',
-		label: '地址',
+		label: 'id',
 		valid: false,
 		validates: null,
 		type: 'hidden'
@@ -263,7 +271,7 @@ export const enterpriseInfoDto = {
 		label: '地址',
 		valid: false,
 		validates: null,
-		type: 'string'
+		type: 'input'
 	},
 	bankCard: {
 		required: false,
@@ -284,10 +292,12 @@ export const enterpriseInfoDto = {
 	brand: {
 		required: false,
 		value: '',
-		label: '客户类型',
+		label: '品牌',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: '22fcb231882411eea75100163e127ceb',
+		options: []
 	},
 	businessType: {
 		required: false,
@@ -295,7 +305,9 @@ export const enterpriseInfoDto = {
 		label: '业态',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: '22fb1076882411eea75100163e127ceb',
+		options: []
 	},
 	eleasingEnterpriseId: {
 		required: false,
@@ -319,7 +331,9 @@ export const enterpriseInfoDto = {
 		label: '公司类型',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: 'f207e9b437b04dcc97664a590c97664a',
+		options: []
 	},
 	idNumber: {
 		required: false,
@@ -327,7 +341,7 @@ export const enterpriseInfoDto = {
 		label: '证件号码',
 		valid: false,
 		validates: null,
-		type: 'string'
+		type: 'input'
 	},
 	idType: {
 		required: false,
@@ -335,15 +349,19 @@ export const enterpriseInfoDto = {
 		label: '证件类型',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: '6d696972b1b746d2af5c61328c20a668',
+		options: []
 	},
 	industry: {
 		required: false,
 		value: '',
-		label: '招商进度',
+		label: '行业',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: '70be3d0b65fc473d924a3d074300b78b',
+		options: []
 	},
 	intermediary: {
 		required: false,
@@ -351,7 +369,7 @@ export const enterpriseInfoDto = {
 		label: '所属中介',
 		valid: false,
 		validates: null,
-		type: 'string'
+		type: 'input'
 	},
 	legalPerson: {
 		required: false,
@@ -391,7 +409,9 @@ export const enterpriseInfoDto = {
 		label: '业务类型',
 		valid: false,
 		validates: null,
-		type: 'integer'
+		type: 'select',
+		target: '',
+		options: [{ label: '1', value: '客户' }, { label: '2', value: '线索' }]
 	},
 	scale: {
 		required: false,
@@ -409,7 +429,7 @@ export const enterpriseInfoDto = {
 		label: '公司网址',
 		valid: false,
 		validates: null,
-		type: 'string'
+		type: 'input'
 	},
 	updateTime: {
 		required: false,
@@ -438,7 +458,7 @@ export const contactsDto = {
 		validates: null,
 		type: 'hidden'
 	},
-	pid:{
+	pid: {
 		required: false,
 		value: '',
 		label: 'pid',
@@ -446,7 +466,7 @@ export const contactsDto = {
 		validates: null,
 		type: 'hidden'
 	},
-	pidType:{
+	pidType: {
 		required: false,
 		value: '',
 		label: 'pid',
@@ -455,7 +475,7 @@ export const contactsDto = {
 		type: 'hidden'
 	},
 	userName: {
-		required: false,
+		required: true,
 		value: '',
 		label: '联系人姓名',
 		valid: false,
@@ -516,7 +536,8 @@ export const contactsDto = {
 	}
 
 }
-export const inputDto = {
+
+export const inputDto : any = {
 	contacts: contactsDto,
 	leads: leadsDto,
 	enterpriseInfo: enterpriseInfoDto,

@@ -49,22 +49,61 @@ function friendlyDate(timestamp) {
 }
 
 const validateControl = (control) => {
-  let valid = true;
-  if (control.required) {
-    valid = control.value !== '' && control.value !== null && control.value !== undefined;
-    if (control.validates) {
-      const prefixRegExp = String(control.validates);
-      const regExp = new RegExp(prefixRegExp);
-      valid = regExp.test(control.value);
-    }
-  } else {
-    if (control.validates) {
-      valid = new RegExp(String(control.validates)).test(control.value);
-    }
-  }
-  return valid;
+	let valid = true;
+	if (control.required) {
+		valid = control.value !== '' && control.value !== null && control.value !== undefined;
+		if (control.validates) {
+			const prefixRegExp = String(control.validates);
+			const regExp = new RegExp(prefixRegExp);
+			valid = regExp.test(control.value);
+		}
+	} else {
+		if (control.validates) {
+			valid = new RegExp(String(control.validates)).test(control.value);
+		}
+	}
+	return valid;
+}
+const listToTree = (data, options) => {
+	options = options || {};
+	const ID_KEY = options.idKey || 'id';
+	const PARENT_KEY = options.parentKey || 'parentId';
+	const CHILDREN_KEY = options.childrenKey || 'items';
+	const items = [];
+	  data.forEach(item => {
+	    items.push(item);
+	  });
+	  items.sort((a, b) => {
+	    return a.order - b.order;
+	  });
+
+	const tree = [];
+	const childrenOf = {};
+	let item;
+	let id;
+	let parentId;
+	for (let i = 0, length = items.length; i < length; i++) {
+		item = items[i];
+		id = item[ID_KEY];
+		parentId = item[PARENT_KEY] || 'root';
+		// every item may have children
+		childrenOf[id] = childrenOf[id] || [];
+		// init its children
+		item[CHILDREN_KEY] = childrenOf[id];
+		if (parentId !== 'root') {
+			// init its parent's children object
+			childrenOf[parentId] = childrenOf[parentId] || [];
+			// push it into its parent's children object
+			childrenOf[parentId].push(item);
+		} else {
+			tree.push(item);
+		}
+	}
+
+	return tree;
 }
 export {
 	friendlyDate,
-	validateControl
+	validateControl,
+	listToTree
 }

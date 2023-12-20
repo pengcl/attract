@@ -13,7 +13,9 @@
 						<view class="title">{{item.name}}</view>
 						<view class="desc">
 							<view>归属人：{{item.customerName}}</view>
-							<view>来源：{{map.sourceType.options[item.sourceType] ? map.sourceType.options[item.sourceType] : '无'}}</view>
+							<view>
+								来源：{{map.sourceType.options[item.sourceType] ? map.sourceType.options[item.sourceType] : '无'}}
+							</view>
 							<view>最近跟进：{{item.updateTime}}</view>
 						</view>
 					</view>
@@ -27,6 +29,9 @@
 			</uni-list-item>
 		</uni-list>
 		<view class="uni-loadmore" v-if="showLoadMore">{{loadMoreText}}</view>
+		<view @click="add()" class="float-btn">
+			<image src="../../../../static/plus.png"></image>
+		</view>
 	</view>
 </template>
 <script>
@@ -90,21 +95,21 @@
 		},
 		onReachBottom() {
 			console.log("onReachBottom");
-			if (this.max > 40) {
+			/* if (this.max > 40) {
 				this.loadMoreText = "没有更多数据了!"
 				return;
 			}
 			this.showLoadMore = true;
 			setTimeout(() => {
 				this.setListData();
-			}, 300);
+			}, 300); */
 		},
 		onPullDownRefresh() {
 			console.log('onPullDownRefresh');
 			this.initData();
 		},
 		beforeDestroy() {
-		    uni.$off('paramsChange',this.paramsChange);
+			uni.$off('paramsChange', this.paramsChange);
 		},
 		methods: {
 			initData() {
@@ -151,10 +156,37 @@
 					path: '/pages/dashboard/clue/item/item',
 					query: item
 				});
+			},
+			add(){
+				this.$router.push({
+					path: '/pages/dashboard/clue/edit/edit?id=0',
+					query: {}
+				});
 			}
 		}
 	}
 </script>
 
-<style>
+<style lang="scss" scoped>
+	.uni-list {
+		margin-top: 5px;
+
+		&::after {
+			display: none;
+		}
+	}
+
+	.float-btn {
+		position: fixed;
+		bottom: 50rpx;
+		right: 50rpx;
+		width: 100rpx;
+		height: 100rpx;
+
+		image {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+	}
 </style>

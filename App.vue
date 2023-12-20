@@ -1,4 +1,7 @@
 <script>
+	import {
+		dictSvc
+	} from "./common/dictSvc";
 	export default {
 		onLaunch: function() {
 			console.log('App Launch');
@@ -19,6 +22,7 @@
 	@import './common/uni.css';
 	@import '@/static/customicons.css';
 	@import './common/style.scss';
+
 	/* H5 兼容 pc 所需 */
 	/* #ifdef H5 */
 	@media screen and (min-width: 768px) {

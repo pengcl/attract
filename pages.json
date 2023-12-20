@@ -116,7 +116,14 @@
 			"style": {
 				"navigationBarTitleText": "新建线索"
 			}
-		}]
+		},
+		{
+			"path": "follow/edit/edit",
+			"style": {
+				"navigationBarTitleText": "新建跟进"
+			}
+		}
+		]
 	}],
 	"globalStyle": {
 		"pageOrientation": "portrait",

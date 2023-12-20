@@ -1,4 +1,5 @@
-import App from './App.vue'
+import App from './App.vue';
+import {dictSvc} from "./common/dictSvc";
 
 const host = 'https://unidemo.dcloud.net.cn/';
 
@@ -6,11 +7,22 @@ const host = 'https://unidemo.dcloud.net.cn/';
 import Vue from 'vue'
 Vue.config.productionTip = false
 Vue.prototype.$host = host;
-App.mpType = 'app'
+App.mpType = 'app';
 const app = new Vue({
-  ...App
-})
-app.$mount()
+	  ...App
+	})
+// app.$mount();
+
+const start = async ()=>{
+	const res = await dictSvc.all();
+		const map = {};
+		res.forEach(item => {
+			map[item.id] = item.value;
+		});
+		dictSvc.setMap(map);
+		app.$mount();
+}
+start();
 // #endif
 
 // #ifdef VUE3

@@ -7,15 +7,15 @@
 					<uni-list-item class="list-item">
 						<template v-slot:header>
 							<view class="list-item-header">
-								<view class="avatar">广</view>
+								<view class="avatar">{{profile.name.slice(0,1)}}</view>
 							</view>
 						</template>
 						<template v-slot:body>
 							<view class="list-item-body">
-								<view class="title">广州飞跃信息科技有限公司 <image src="/static/icons/authentication-gray.png"></image></view>
+								<view class="title">{{profile.name}} <image src="/static/icons/authentication-gray.png"></image></view>
 								<view class="desc">
-									<view>来源：自然客户-到访参观</view>
-									<view>最近跟进：2022-11-11 15:23:44</view>
+									<view>来源：{{profile.source}}</view>
+									<view>最近跟进：{{profile.dateTime}}</view>
 								</view>
 								<view class="actions">
 									<view class="uni-flex uni-row">
@@ -55,7 +55,7 @@
 		name: "page-filter",
 		props: {
 			profile: {
-				type: String,
+				type: Object,
 				default: ""
 			}
 		},
