@@ -36,16 +36,13 @@
 </template>
 <script>
 	import {
-		clueSvc
-	} from '../clueSvc';
+		customerSvc
+	} from '../customerSvc';
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc"
 	import {
-		leadsDto,
-		enterpriseInfoDto,
-		leadsIntentionInfoDto,
-		contactsDto
+		customerDto
 	} from '../data';
 	export default {
 		data() {
@@ -113,7 +110,7 @@
 		},
 		methods: {
 			initData() {
-				clueSvc.find(this.params).then(res => {
+				customerSvc.find(this.params).then(res => {
 					const data = res.list;
 					data.forEach(item => {
 						item.short = item.customerName.slice(0, 1);

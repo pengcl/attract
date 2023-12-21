@@ -122,6 +122,24 @@
 			"style": {
 				"navigationBarTitleText": "新建跟进"
 			}
+		},
+		{
+			"path": "customer/list/list",
+			"style": {
+				"navigationBarTitleText": "新建跟进"
+			}
+		},
+		{
+			"path": "customer/edit/edit",
+			"style": {
+				"navigationBarTitleText": "添加联系人"
+			}
+		},
+		{
+			"path": "customer/item/item",
+			"style": {
+				"navigationBarTitleText": "联系人详情"
+			}
 		}
 		]
 	}],

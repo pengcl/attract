@@ -134,13 +134,13 @@
 					if (item.type === 'select' || item.type === 'chips') {
 						item.index = null;
 						if (item.options.length === 0 && item.target) {
-							const res = await dictSvc.options(item.target);
+							const res = dictSvc.getOptions(item.target);
 							item.options = res;
 						}
 					} else if (item.type === 'multiSelector') {
 						item.index = [null, null];
 						if (item.options[0].length === 0 && item.target) {
-							const res = await dictSvc.options(item.target);
+							const res = dictSvc.getOptions(item.target);
 							const items = listToTree(res);
 							console.log(items);
 							item.options[0] = items;

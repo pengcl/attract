@@ -74,7 +74,6 @@
 		.page-profile__wrapper {
 			position: relative;
 			width: 100%;
-			z-index: 997;
 			background-color: transparent;
 		}
 

@@ -17,7 +17,7 @@
 									<switch @change="bindSwitchChange" :data-target="key" name="switch" />
 								</template>
 								<template v-if="item.type === 'input'">
-									<input class="uni-input" :name="key" :data-target="key" @input="onInput"
+									<input class="uni-input" :name="key" @blur="blur" :data-target="key" @input="onInput"
 										v-model="form.controls[key].value" :placeholder="'请输入' + item.label" :disabled="item.readonly" />
 								</template>
 								<template v-if="item.type === 'select'">
@@ -245,6 +245,19 @@
 					tips
 				} = this.onVerifyInputLegal();
 				uni.$emit('inputChange', {
+					control: target,
+					value,
+					form: this.name
+				});
+			},
+			blur(e){
+				const {
+					target
+				} = e.currentTarget.dataset;
+				const {
+					value
+				} = e.detail;
+				uni.$emit('blurChange', {
 					control: target,
 					value,
 					form: this.name

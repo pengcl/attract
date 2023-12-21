@@ -16,6 +16,7 @@ const app = new Vue({
 const start = async ()=>{
 	const res = await dictSvc.all();
 		const map = {};
+		dictSvc.setDicts(res);
 		res.forEach(item => {
 			map[item.id] = item.value;
 		});

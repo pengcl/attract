@@ -2,6 +2,7 @@ import { env } from "./env";
 import { handleRes } from "./extands";
 
 let map = {};
+let dicts : any[] = [];
 
 export const dictSvc = {
 	options: (code : any) => {
@@ -24,10 +25,19 @@ export const dictSvc = {
 			});
 		});
 	},
+	getOptions(code : string) {
+		return dicts.filter(item => item.code === code);
+	},
+	setDicts: (data : any) => {
+		dicts = data;
+	},
+	getDicts() {
+		return dicts;
+	},
 	setMap: (data : any) => {
 		map = data;
 	},
-	getMap(){
+	getMap() {
 		return map;
 	}
 };

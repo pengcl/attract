@@ -1,6 +1,32 @@
 <template>
 	<view class="page">
-		<page-form ref="pageForm" :name="'followForm'" :form="form"></page-form>
+		<page-form class="common-form" ref="pageForm" :name="'customerForm'" :form="form"></page-form>
+		<view class="page-form" style="margin-top: 10px">
+			<view class="page-form__wrapper">
+				<form class="form">
+					<uni-list>
+						<uni-list-item :class="'control_' + key" v-if="key === 'pidType'"
+							v-for="(item, key, index) in form.controls" class="form-control list-item">
+							<template v-slot:header>
+								<view class="list-item-header">
+									{{item.label}}
+								</view>
+							</template>
+							<template v-slot:body>
+								<view class="list-item-body">
+									<radio-group @change="radioChange">
+										<label v-for="(option, i) in item.options"
+											:key="option.label">
+											<radio :disabled="pid" :value="option.label" :checked="i === item.index" /> {{option.value}}
+										</label>
+									</radio-group>
+								</view>
+							</template>
+						</uni-list-item>
+					</uni-list>
+				</form>
+			</view>
+		</view>
 		<view class="page-footer-placeholder"></view>
 		<view class="page-footer">
 			<view @click="submit" class="btn" :class="form.valid ? 'valid' : 'invalid'">保存</view>
@@ -9,7 +35,7 @@
 </template>
 <script>
 	import {
-		followDto
+		customerDto
 	} from '../data';
 	import {
 		dictSvc
@@ -18,8 +44,8 @@
 		clueSvc
 	} from '../../clue/clueSvc';
 	import {
-		followSvc
-	} from "../followSvc";
+		customerSvc
+	} from "../customerSvc";
 	import {
 		listToTree
 	} from "../../../../common/util.js"
@@ -27,6 +53,8 @@
 		data() {
 			return {
 				id: null,
+				pid: null,
+				pidType: null,
 				data: null,
 				isCreate: false,
 				form: {
@@ -38,14 +66,25 @@
 		onReady() {},
 		async onLoad(options) {
 			const {
-				id
+				id,
+				pid,
+				pidType
 			} = options;
 			this.id = id;
+			this.pid = pid;
+			this.pidType = pidType;
 			await this.initForm();
 			uni.$on('inputChange', this.inputChange);
-			uni.$on('verifyChange', this.verifyChange)
+			uni.$on('verifyChange', this.verifyChange);
+			uni.$on('blurChange', this.blurChange);
 			if (this.id && this.id !== '0') {
 				this.getData();
+			}
+			if (this.pid && this.pid !== '0') {
+				this.setValue('pid', this.pid);
+			}
+			if (this.pidType) {
+				this.setValue('pidType', this.pidType);
 			}
 			// this.initData();
 		},
@@ -55,10 +94,16 @@
 		},
 		watch: {},
 		methods: {
+			radioChange(e){
+				console.log(e);
+			},
 			verifyChange(e) {
 				console.log(e);
 				this.$set(this.form, 'valid', e.isLegal);
 				this.$set(this.form, 'error', e.tips);
+			},
+			blurChange(e){
+				console.log(e);
 			},
 			inputChange(e) {
 				// console.log(e);
@@ -92,12 +137,12 @@
 			},
 			async initForm() {
 				// 初始化leadsForm
-				const controls = JSON.parse(JSON.stringify(followDto));
+				const controls = JSON.parse(JSON.stringify(customerDto));
 				await this.createForm(controls);
 
 			},
 			getData() {
-				clueSvc.item(this.id).then(res => {
+				customerSvc.item(this.id).then(res => {
 					this.setValue('customerName', res.customerName);
 					this.setValue('status', res.status);
 					this.setValue('level', res.level);
@@ -154,12 +199,11 @@
 				return value;
 			},
 			submit() {
-				console.log(this.form);
 				if (!this.form.valid) {
 					return false;
 				}
 				const data = this.getValue();
-				followSvc.create(data).then(res => {
+				customerSvc.create(data).then(res => {
 					console.log(res);
 				});
 			}
@@ -228,6 +272,26 @@
 						color: #fff;
 					}
 				}
+			}
+		}
+	}
+
+	.list-item-body {
+		flex: 1 1 auto;
+		text-align: right;
+
+		/deep/ {
+			.uni-label-pointer {
+				margin-left: 10px;
+			}
+		}
+
+	}
+	
+	.common-form {
+		/deep/{
+			.control_pidType {
+				display: none;
 			}
 		}
 	}

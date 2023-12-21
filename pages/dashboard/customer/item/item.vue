@@ -72,13 +72,16 @@
 							:rightText="data.details.phone ? data.details.phone : '无'" />
 						<uni-list-item :border="false" note="最近跟进时间"
 							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="最近跟进人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="前归属人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
 					</uni-list>
 				</template>
 			</view>
 			<view class="tab-content" v-if="tab === 2">
 				<view class="panel">
-					<view class="panel-hd">联系人 <view @click="link('customer')" class="more">+添加</view>
-					</view>
+					<view class="panel-hd">联系人 <view @click="link('customer')" class="more">+添加</view></view>
 					<view class="panel-bd">
 						<uni-list class="list-items">
 							<uni-list-item class="list-item">
@@ -116,10 +119,9 @@
 						</uni-list>
 					</view>
 				</view>
-
+				
 				<view class="panel">
-					<view class="panel-hd">团队成员 <view @click="link('team')" class="more">+添加</view>
-					</view>
+					<view class="panel-hd">团队成员 <view @click="link('team')" class="more">+添加</view></view>
 					<view class="panel-bd">
 						<uni-list class="list-items">
 							<uni-list-item class="list-item">
@@ -167,8 +169,8 @@
 		clueTabs
 	} from '../data';
 	import {
-		clueSvc
-	} from '../clueSvc';
+		customerSvc
+	} from '../customerSvc';
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc"
@@ -182,7 +184,6 @@
 			return {
 				id: null,
 				profile: null,
-				actionsheetShow: false,
 				map: {},
 				data: {
 					details: {},
@@ -222,14 +223,12 @@
 			}
 		},
 		methods: {
-			link(type) {
-				if (type === 'customer') {
+			link(type){
+				if(type === 'customer'){
 					this.$router.push({
 						path: '/pages/dashboard/customer/edit/edit',
 						query: {
-							id: 0,
-							pid: this.data.details.id,
-							pidType: '2'
+							id: 0
 						}
 					});
 				}
@@ -252,23 +251,6 @@
 						}
 					});
 				}
-				if (e.code === 'in') {
-					uni.showModal({
-						content: `是否确认将 ["${this.profile.name}"] 放入公客池！`,
-						confirmText: "确定",
-						cancelText: "取消",
-						success: (res) => {
-							if (res.confirm) {
-								clueSvc.inPool([this.id]).then(res => {
-									console.log(res);
-								});
-							}
-						}
-					})
-				}
-				if (e.code === 'more') {
-					this.open();
-				}
 			},
 			tabChange(tab) {
 				this.tab = tab;
@@ -281,7 +263,7 @@
 			},
 			async initKeyMap() {},
 			initData() {
-				clueSvc.item(this.id).then(res => {
+				customerSvc.item(this.id).then(res => {
 					this.$set(this.data, 'details', res);
 					const profile = {
 						name: res.customerName,
@@ -307,18 +289,6 @@
 					});
 					this.$set(this.data, 'records', data);
 				})
-			},
-			open() {
-				//this.actionsheetShow = true;
-				uni.showActionSheet({
-					itemList:['增加联系人','增加协作人'],
-					success: (res) => {
-						console.log(res);
-					}
-				})
-			},
-			close() {
-				this.$refs.popup.close()
 			}
 		}
 	}
@@ -360,11 +330,9 @@
 
 	.panel {
 		margin: 20rpx;
-
 		.panel-hd {
 			padding-right: 3em;
 			position: relative;
-
 			.more {
 				position: absolute;
 				right: 11px;
