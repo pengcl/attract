@@ -225,7 +225,7 @@
 			link(type) {
 				if (type === 'customer') {
 					this.$router.push({
-						path: '/pages/dashboard/customer/edit/edit',
+						path: '/pages/dashboard/contacts/edit/edit',
 						query: {
 							id: 0,
 							pid: this.data.details.id,
@@ -290,7 +290,7 @@
 					};
 					this.profile = profile;
 				});
-				followSvc.find(this.id).then(res => {
+				followSvc.find(this.id, 'leads').then(res => {
 					const data = [];
 					res.forEach(item => {
 						item._id = moment(res.createTime).format('YYYY-MM-DD');
@@ -306,12 +306,15 @@
 						}
 					});
 					this.$set(this.data, 'records', data);
-				})
+				});
+				clueSvc.relations(this.id).then(res => {
+					console.log(res);
+				});
 			},
 			open() {
 				//this.actionsheetShow = true;
 				uni.showActionSheet({
-					itemList:['增加联系人','增加协作人'],
+					itemList: ['增加联系人', '增加协作人'],
 					success: (res) => {
 						console.log(res);
 					}

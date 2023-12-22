@@ -1,6 +1,7 @@
 <template>
 	<view class="page page-has_title">
 		<page-filter :total="1" :selected="selected" :sourceParams="params"></page-filter>
+		<empty v-if="data.length === 0"></empty>
 		<uni-list class="list-items" :class="{'is-bulk': tab === 'bulk'}">
 			<uni-list-item class="list-item" v-for="(item,index) in data" clickable @click="link(item)" :key="index">
 				<template v-slot:header>
@@ -39,8 +40,8 @@
 </template>
 <script>
 	import {
-		customerSvc
-	} from '../customerSvc';
+		clueSvc
+	} from '../clueSvc';
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc"
@@ -119,7 +120,7 @@
 		},
 		methods: {
 			initData() {
-				customerSvc.find(this.params).then(res => {
+				clueSvc.pool(this.params).then(res => {
 					const data = res.list;
 					data.forEach(item => {
 						item.short = item.customerName.slice(0, 1);
@@ -142,10 +143,8 @@
 					};
 					this.$set(this.map, key, result);
 				}
-				console.log(this.map);
 			},
 			paramsChange(e) {
-				console.log(e);
 				if (e.type === 'tab') {
 					this.tab = e.data;
 				}
@@ -183,13 +182,11 @@
 				this.data = this.data.concat(data);
 			},
 			link(item) {
-				console.log(item);
 				if (this.tab === 'bulk') {
 					this.$set(this.selected, item.id, !this.selected[item.id]);
-					console.log(this.selected);
 				} else {
 					this.$router.push({
-						path: '/pages/dashboard/customer/item/item',
+						path: '/pages/dashboard/clue/item/item',
 						query: {
 							id: item.id
 						}
@@ -199,7 +196,7 @@
 			},
 			add() {
 				this.$router.push({
-					path: '/pages/dashboard/customer/edit/edit?id=0',
+					path: '/pages/dashboard/clue/edit/edit?id=0',
 					query: {}
 				});
 			}

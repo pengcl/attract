@@ -63,7 +63,7 @@
 						</view>
 					</uni-grid-item>
 					<uni-grid-item>
-						<view class="item-box">
+						<view @click="link('/pages/dashboard/customer/list/list')" class="item-box">
 							<view class="icon">
 								<image src="../../../static/dashboard/index/application-02.png"></image>
 							</view>
@@ -79,7 +79,7 @@
 						</view>
 					</uni-grid-item>
 					<uni-grid-item>
-						<view class="item-box">
+						<view @click="link('/pages/dashboard/clue/pool/pool')" class="item-box">
 							<view class="icon">
 								<image src="../../../static/dashboard/index/application-04.png"></image>
 							</view>

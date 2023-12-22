@@ -1,48 +1,55 @@
 <template>
 	<view class="page">
-		<page-form class="common-form" ref="pageForm" :name="'customerForm'" :form="form"></page-form>
-		<view class="page-form" style="margin-top: 10px">
-			<view class="page-form__wrapper">
-				<form class="form">
-					<uni-list>
-						<uni-list-item :class="'control_' + key" v-if="key === 'pidType'"
-							v-for="(item, key, index) in form.controls" class="form-control list-item">
-							<template v-slot:header>
-								<view class="list-item-header">
-									{{item.label}}
-								</view>
-							</template>
-							<template v-slot:body>
-								<view class="list-item-body">
-									<radio-group @change="radioChange">
-										<label v-for="(option, i) in item.options"
-											:key="option.label">
-											<radio :disabled="pid" :value="option.label" :checked="i === item.index" /> {{option.value}}
-										</label>
-									</radio-group>
-								</view>
-							</template>
-						</uni-list-item>
-					</uni-list>
-				</form>
-			</view>
-		</view>
+		<page-form ref="customerForm" :name="'customerForm'" :form="form.customerForm"></page-form>
+		<template v-if="more">
+			<page-form ref="enterpriseInfoForm"
+				v-if="form.enterpriseInfoForm && form.customerForm.controls.customerType.value"
+				:name="'enterpriseInfoForm'" :form="form.enterpriseInfoForm"></page-form>
+			<page-form ref="customerIntentionInfoForm" v-if="form.customerIntentionInfoForm" :name="'customerIntentionInfoForm'"
+				:form="form.customerIntentionInfoForm"></page-form>
+			<uni-list-item class="form-control list-item" style="margin-top: 10rpx;">
+				<template v-slot:header>
+					<view class="list-item-header">
+
+					</view>
+				</template>
+				<template v-slot:body>
+					<view class="list-item-body">
+						<!-- <label>
+							<checkbox @change="checkboxChange" value="true" /><text>同步创建联系人</text>
+						</label> -->
+						<checkbox-group @change="checkboxChange">
+							<label>
+								<checkbox :value="'1'" :checked="false" />同步创建联系人
+							</label>
+						</checkbox-group>
+					</view>
+				</template>
+			</uni-list-item>
+			<page-form ref="contactsForm" v-if="form.contactsForm && isCreate" :name="'contactsForm'"
+				:form="form.contactsForm"></page-form>
+		</template>
+		<view class="more" @click="setMore">{{more ? '收起' : '展开'}}更多</view>
 		<view class="page-footer-placeholder"></view>
 		<view class="page-footer">
 			<view @click="submit" class="btn" :class="form.valid ? 'valid' : 'invalid'">保存</view>
 		</view>
+		<!-- <view class="uni-popup">
+			<page-companies></page-companies>
+		</view> -->
+
 	</view>
 </template>
 <script>
 	import {
-		customerDto
+		customerDto,
+		enterpriseInfoDto,
+		customerIntentionInfoDto,
+		contactsDto
 	} from '../data';
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc";
-	import {
-		clueSvc
-	} from '../../clue/clueSvc';
 	import {
 		customerSvc
 	} from "../customerSvc";
@@ -53,10 +60,10 @@
 		data() {
 			return {
 				id: null,
-				pid: null,
-				pidType: null,
 				data: null,
 				isCreate: false,
+				isEnterprise: false,
+				more: true,
 				form: {
 					valid: true,
 					error: '',
@@ -66,50 +73,61 @@
 		onReady() {},
 		async onLoad(options) {
 			const {
-				id,
-				pid,
-				pidType
+				id
 			} = options;
 			this.id = id;
-			this.pid = pid;
-			this.pidType = pidType;
 			await this.initForm();
-			uni.$on('inputChange', this.inputChange);
-			uni.$on('verifyChange', this.verifyChange);
-			uni.$on('blurChange', this.blurChange);
 			if (this.id && this.id !== '0') {
 				this.getData();
 			}
-			if (this.pid && this.pid !== '0') {
-				this.setValue('pid', this.pid);
-			}
-			if (this.pidType) {
-				this.setValue('pidType', this.pidType);
-			}
+			uni.$on('inputChange', this.inputChange);
+			uni.$on('verifyChange', this.verifyChange);
 			// this.initData();
 		},
 		beforeDestroy() {
 			uni.$off('inputChange', this.inputChange);
 			uni.$off('verifyChange', this.verifyChange);
+			uni.$off('footEvent', this.footChange);
 		},
-		watch: {},
+		watch: {
+			'form.leadsForm.controls.customerType.value': {
+				handler(newValue, oldValue) {
+					this.isEnterprise = newValue;
+				},
+				immediate: false,
+				deep: true
+			}
+		},
 		methods: {
-			radioChange(e){
-				console.log(e);
+			setMore() {
+				this.more = !this.more;
+			},
+			checkboxChange(e) {
+
+				const values = e.detail.value;
+				this.isCreate = values[0] === '1';
 			},
 			verifyChange(e) {
-				console.log(e);
-				this.$set(this.form, 'valid', e.isLegal);
-				this.$set(this.form, 'error', e.tips);
-			},
-			blurChange(e){
-				console.log(e);
+				const result = {
+					isLegal: true,
+					tips: ''
+				};
+				for (const key in this.form) {
+					if (typeof this.form[key] === 'object') {
+						if (!this.form[key].valid) {
+							result.isLegal = false;
+							result.tips = this.form[key].error;
+						}
+					}
+				}
+				this.$set(this.form, 'valid', result.isLegal);
+				this.$set(this.form, 'error', result.tips);
 			},
 			inputChange(e) {
 				// console.log(e);
 			},
 
-			async createForm(controls) {
+			async createForm(target, controls) {
 				for (const key in controls) {
 					const item = controls[key];
 					if (item.type === 'select' || item.type === 'chips') {
@@ -123,9 +141,11 @@
 						if (item.options[0].length === 0 && item.target) {
 							const res = dictSvc.getOptions(item.target);
 							const items = listToTree(res);
+							console.log(items);
 							item.options[0] = items;
 							item.options[1] = items[0].items;
 						}
+						console.log(item.options);
 					}
 				}
 				const form = {
@@ -133,26 +153,54 @@
 					error: '',
 					controls
 				};
-				this.form = form;
+				this.$set(this.form, target + 'Form', form);
 			},
 			async initForm() {
 				// 初始化leadsForm
-				const controls = JSON.parse(JSON.stringify(customerDto));
-				await this.createForm(controls);
+				const customerControls = JSON.parse(JSON.stringify(customerDto));
+				await this.createForm('customer', customerControls);
+
+				// 初始化contactsForm
+				const contactsControls = JSON.parse(JSON.stringify(contactsDto));
+				await this.createForm('contacts', contactsControls);
+
+				// 初始化contactsForm
+				const enterpriseInfoControls = JSON.parse(JSON.stringify(enterpriseInfoDto));
+				await this.createForm('enterpriseInfo', enterpriseInfoControls);
+
+				// 初始化contactsForm
+				const customerIntentionInfoControls = JSON.parse(JSON.stringify(customerIntentionInfoDto));
+
+
+				if (!this.id || this.id === '0') {
+					// customerIntentionInfoControls.leadsId.required = false;
+				} else {
+					// customerIntentionInfoControls.leadsId.required = true;
+					// customerIntentionInfoControls.leadsId.value = this.id;
+				}
+				await this.createForm('customerIntentionInfo', customerIntentionInfoControls);
 
 			},
 			getData() {
 				customerSvc.item(this.id).then(res => {
-					this.setValue('customerName', res.customerName);
-					this.setValue('status', res.status);
-					this.setValue('level', res.level);
-					this.setValue('customerType', res.customerType);
-					this.setValue('pid', res.id);
-					this.setValue('contactsTime', res.nextFollowTime);
-					this.setValue('sourceType', res.sourceType);
-					this.setValue('sourceSubtype', res.sourceSubtype);
-					this.setValue('sources', [res.sourceType, res.sourceSubtype]);
+					this.setFormValue('customer', res);
 				});
+			},
+			setFormValue(k, values) {
+				console.log(this.form);
+				const controls = this.form[k + 'Form'].controls;
+				for (const key in controls) {
+
+					if (key === 'pid') {
+						this.setValue(k, key, values['id']);
+					} else if (key === 'contactsTime') {
+						this.setValue(k, key, values['nextFollowTime']);
+					} else if (key === 'sources') {
+						this.setValue(k, key, [values.sourceType, values.sourceSubtype]);
+					} else {
+						this.setValue(k, key, values[key]);
+					}
+				}
 			},
 			getIndex(options, value) {
 				let index = null;
@@ -163,9 +211,9 @@
 				});
 				return index;
 			},
-			setValue(target, value) {
-				this.form.controls[target].value = value;
-				const control = this.form.controls[target];
+			setValue(key, target, value) {
+				const control = this.form[key + 'Form'].controls[target];
+				control.value = value;
 				const {
 					type,
 					options
@@ -184,12 +232,11 @@
 					control.options[1] = options[0][control.index[0]].items;
 					control.index[1] = this.getIndex(options[1], value[1]);
 				}
-				this.$refs.pageForm.onInputValue(target, value);
+				this.$refs[key + 'Form'].onInputValue(target, value);
 			},
-
-			getValue() {
+			getValue(key) {
 				const value = {};
-				const controls = this.form.controls;
+				const controls = this.form[key + 'Form'].controls;
 				for (const controlKey in controls) {
 					const control = controls[controlKey];
 					if (!control.notPost) {
@@ -198,14 +245,40 @@
 				}
 				return value;
 			},
-			submit() {
-				if (!this.form.valid) {
-					return false;
-				}
-				const data = this.getValue();
+			add(data) {
 				customerSvc.create(data).then(res => {
 					console.log(res);
 				});
+			},
+			update(data) {
+				customerSvc.update(data).then(res => {
+					console.log(res);
+				});
+			},
+			submit() {
+				console.log(this.data);
+				console.log(this.form);
+				if (!this.form.valid) {
+					return false;
+				}
+				const keys = ['customer', 'enterpriseInfo', 'customerIntentionInfo', 'contacts'];
+				const customerValue = this.getValue('customer');
+				const enterpriseInfoValue = this.isEnterprise ? this.getValue('enterpriseInfo') : null;
+				const customerIntentionInfoValue = this.getValue('customerIntentionInfo');
+				const contactsValue = this.isCreate ? this.getValue('contacts') : null;
+				customerValue.customerType = customerValue.customerType ? '1' : '0';
+				const data = {
+					customer: customerValue,
+					enterpriseInfo: enterpriseInfoValue,
+					customerIntentionInfo: customerIntentionInfoValue,
+					contacts: contactsValue
+				};
+				if (this.id && this.id !== '0') {
+					data.customerId = this.id;
+					this.update(data);
+				} else {
+					this.add(data);
+				}
 			}
 		}
 	}
@@ -272,26 +345,6 @@
 						color: #fff;
 					}
 				}
-			}
-		}
-	}
-
-	.list-item-body {
-		flex: 1 1 auto;
-		text-align: right;
-
-		/deep/ {
-			.uni-label-pointer {
-				margin-left: 10px;
-			}
-		}
-
-	}
-	
-	.common-form {
-		/deep/{
-			.control_pidType {
-				display: none;
 			}
 		}
 	}

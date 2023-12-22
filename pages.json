@@ -101,10 +101,16 @@
 	],
 	"subPackages": [{
 		"root": "pages/dashboard",
-		"pages": [{
+		"pages": [
+			{
 			"path": "clue/list/list",
 			"style": {
 				"navigationBarTitleText": "线索列表"
+			}
+		},{
+			"path": "clue/pool/pool",
+			"style": {
+				"navigationBarTitleText": "线索池"
 			}
 		}, {
 			"path": "clue/item/item",
@@ -118,27 +124,61 @@
 			}
 		},
 		{
+			"path": "customer/list/list",
+			"style": {
+				"navigationBarTitleText": "客户列表"
+			}
+		}, {
+			"path": "customer/item/item",
+			"style": {
+				"navigationBarTitleText": "客户详情"
+			}
+		}, {
+			"path": "customer/edit/edit",
+			"style": {
+				"navigationBarTitleText": "新建客户"
+			}
+		},
+		{
 			"path": "follow/edit/edit",
 			"style": {
 				"navigationBarTitleText": "新建跟进"
 			}
 		},
 		{
-			"path": "customer/list/list",
+			"path": "contacts/list/list",
 			"style": {
-				"navigationBarTitleText": "新建跟进"
+				"navigationBarTitleText": "联系人列表"
 			}
 		},
 		{
-			"path": "customer/edit/edit",
+			"path": "contacts/edit/edit",
 			"style": {
 				"navigationBarTitleText": "添加联系人"
 			}
 		},
 		{
-			"path": "customer/item/item",
+			"path": "contacts/item/item",
 			"style": {
 				"navigationBarTitleText": "联系人详情"
+			}
+		},
+		{
+			"path": "team/list/list",
+			"style": {
+				"navigationBarTitleText": "团队管理"
+			}
+		},
+		{
+			"path": "team/edit/edit",
+			"style": {
+				"navigationBarTitleText": "添加修改团队"
+			}
+		},
+		{
+			"path": "team/item/item",
+			"style": {
+				"navigationBarTitleText": "团队详情"
 			}
 		}
 		]

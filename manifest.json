@@ -96,7 +96,7 @@
         "router" : {
             "mode" : "history",
             "base" : "",
-            "encodeURI": false
+            "encodeURI" : false
         },
         "template" : "h5.template.html",
         "optimization" : {

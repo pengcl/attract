@@ -1,13 +1,24 @@
 import { env } from "./../../../common/env";
 import { handleRes } from "./../../../common/extands";
 
-export const customerSvc = {
+export const contactsSvc = {
 	find: (data : any) => {
 		return new Promise((resolve, reject) => {
 			return uni.request({
 				method: "POST",
-				url: env.prefix + `/customer/list`,
+				url: env.prefix + `/leads/list`,
 				data
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
+	unique: (phone : string) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "GET",
+				url: env.prefix + `/contacts/duplicateCheck`,
+				data: { phone }
 			}).then((res : any) => {
 				return resolve(handleRes(res));
 			});
@@ -17,7 +28,7 @@ export const customerSvc = {
 		return new Promise((resolve, reject) => {
 			return uni.request({
 				method: "GET",
-				url: env.prefix + `/customer/getDataById`,
+				url: env.prefix + `/contacts/getDataById`,
 				data: { id }
 			}).then((res : any) => {
 				return resolve(handleRes(res));
@@ -28,7 +39,7 @@ export const customerSvc = {
 		return new Promise((resolve, reject) => {
 			return uni.request({
 				method: "POST",
-				url: env.prefix + `/customer/add`,
+				url: env.prefix + `/contacts/add`,
 				data
 			}).then((res : any) => {
 				return resolve(handleRes(res));
@@ -39,19 +50,8 @@ export const customerSvc = {
 		return new Promise((resolve, reject) => {
 			return uni.request({
 				method: "POST",
-				url: env.prefix + `/customer/update`,
+				url: env.prefix + `/contacts/update`,
 				data
-			}).then((res : any) => {
-				return resolve(handleRes(res));
-			});
-		});
-	},
-	inPool: (ids : any) => {
-		return new Promise((resolve, reject) => {
-			return uni.request({
-				method: "POST",
-				url: env.prefix + `/customer/resetCommonPool`,
-				data: {ids}
 			}).then((res : any) => {
 				return resolve(handleRes(res));
 			});

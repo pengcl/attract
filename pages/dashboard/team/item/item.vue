@@ -7,12 +7,12 @@
 				<view class="uni-flex uni-row">
 					<view @click="tabChange(0)" class="flex-item" :class="tab === 0 ? 'curr' : ''">
 						<view class="filter-item">
-							客户记录
+							线索记录
 						</view>
 					</view>
 					<view class="flex-item" :class="tab === 1 ? 'curr' : ''">
 						<view @click="tabChange(1)" class="filter-item">
-							客户详情
+							线索详情
 						</view>
 					</view>
 					<view @click="tabChange(2)" class="flex-item" :class="tab === 2 ? 'curr' : ''">
@@ -23,7 +23,6 @@
 				</view>
 			</view>
 			<view class="records tab-content" v-if="tab === 0">
-				<empty v-if="data.records && data.records.length === 0"></empty>
 				<template v-for="(item,index) in data.records">
 					<view class="list-header">{{item.id}}</view>
 					<uni-list class="list-items">
@@ -73,13 +72,16 @@
 							:rightText="data.details.phone ? data.details.phone : '无'" />
 						<uni-list-item :border="false" note="最近跟进时间"
 							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="最近跟进人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
+						<uni-list-item :border="false" note="前归属人"
+							:rightText="data.details.phone ? data.details.phone : '无'" />
 					</uni-list>
 				</template>
 			</view>
 			<view class="tab-content" v-if="tab === 2">
 				<view class="panel">
-					<view class="panel-hd">联系人 <view @click="link('customer')" class="more">+添加</view>
-					</view>
+					<view class="panel-hd">联系人 <view @click="link('customer')" class="more">+添加</view></view>
 					<view class="panel-bd">
 						<uni-list class="list-items">
 							<uni-list-item class="list-item">
@@ -117,10 +119,9 @@
 						</uni-list>
 					</view>
 				</view>
-
+				
 				<view class="panel">
-					<view class="panel-hd">团队成员 <view @click="link('team')" class="more">+添加</view>
-					</view>
+					<view class="panel-hd">团队成员 <view @click="link('team')" class="more">+添加</view></view>
 					<view class="panel-bd">
 						<uni-list class="list-items">
 							<uni-list-item class="list-item">
@@ -168,8 +169,8 @@
 		clueTabs
 	} from '../data';
 	import {
-		customerSvc
-	} from '../customerSvc';
+		teamSvc
+	} from '../teamSvc';
 	import {
 		dictSvc
 	} from "../../../../common/dictSvc"
@@ -183,7 +184,6 @@
 			return {
 				id: null,
 				profile: null,
-				actionsheetShow: false,
 				map: {},
 				data: {
 					details: {},
@@ -223,14 +223,12 @@
 			}
 		},
 		methods: {
-			link(type) {
-				if (type === 'customer') {
+			link(type){
+				if(type === 'contacts'){
 					this.$router.push({
 						path: '/pages/dashboard/contacts/edit/edit',
 						query: {
-							id: 0,
-							pid: this.data.details.id,
-							pidType: '2'
+							id: 0
 						}
 					});
 				}
@@ -239,7 +237,7 @@
 				console.log(e);
 				if (e.code === 'edit') {
 					this.$router.push({
-						path: '/pages/dashboard/customer/edit/edit',
+						path: '/pages/dashboard/clue/edit/edit',
 						query: {
 							id: this.data.details.id
 						}
@@ -253,23 +251,6 @@
 						}
 					});
 				}
-				if (e.code === 'in') {
-					uni.showModal({
-						content: `是否确认将 ["${this.profile.name}"] 放入公客池！`,
-						confirmText: "确定",
-						cancelText: "取消",
-						success: (res) => {
-							if (res.confirm) {
-								customerSvc.inPool([this.id]).then(res => {
-									console.log(res);
-								});
-							}
-						}
-					})
-				}
-				if (e.code === 'more') {
-					this.open();
-				}
 			},
 			tabChange(tab) {
 				this.tab = tab;
@@ -282,7 +263,7 @@
 			},
 			async initKeyMap() {},
 			initData() {
-				customerSvc.item(this.id).then(res => {
+				teamSvc.item(this.id).then(res => {
 					this.$set(this.data, 'details', res);
 					const profile = {
 						name: res.customerName,
@@ -291,7 +272,7 @@
 					};
 					this.profile = profile;
 				});
-				followSvc.find(this.id, 'customer').then(res => {
+				followSvc.find(this.id).then(res => {
 					const data = [];
 					res.forEach(item => {
 						item._id = moment(res.createTime).format('YYYY-MM-DD');
@@ -308,18 +289,6 @@
 					});
 					this.$set(this.data, 'records', data);
 				})
-			},
-			open() {
-				//this.actionsheetShow = true;
-				uni.showActionSheet({
-					itemList:['增加联系人','增加协作人'],
-					success: (res) => {
-						console.log(res);
-					}
-				})
-			},
-			close() {
-				this.$refs.popup.close()
 			}
 		}
 	}
@@ -361,11 +330,9 @@
 
 	.panel {
 		margin: 20rpx;
-
 		.panel-hd {
 			padding-right: 3em;
 			position: relative;
-
 			.more {
 				position: absolute;
 				right: 11px;

@@ -31,6 +31,27 @@ export const clueTabs = [
 	}
 ]
 
+export const bulkTabs = [
+	{
+		label: '分配',
+		code: 'distribute',
+		icon: '/static/distribute.png',
+		selectedIcon: '/static/tabbar/clue/follow.png'
+	},
+	{
+		label: '放公池',
+		code: 'in',
+		icon: '/static/tabbar/clue/in-gray.png',
+		selectedIcon: '/static/tabbar/clue/in.png'
+	},
+	{
+		label: '更多',
+		code: 'more',
+		icon: '/static/tabbar/clue/more-gray.png',
+		selectedIcon: '/static/tabbar/clue/more.png'
+	}
+]
+
 export const leadsDto = {
 	customerName: {
 		required: true,

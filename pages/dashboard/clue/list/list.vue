@@ -1,11 +1,14 @@
 <template>
 	<view class="page page-has_title">
-		<page-filter :sourceParams="params"></page-filter>
-		<uni-list class="list-items">
+		<page-filter :total="1" :selected="selected" :sourceParams="params"></page-filter>
+		<uni-list class="list-items" :class="{'is-bulk': tab === 'bulk'}">
 			<uni-list-item class="list-item" v-for="(item,index) in data" clickable @click="link(item)" :key="index">
 				<template v-slot:header>
 					<view class="list-item-header">
 						<view class="avatar">{{item.short}}</view>
+						<view class="check-box">
+							<image :src="`/static/icons/${selected[item.id] ? 'checked' : 'unchecked'}.png`"></image>
+						</view>
 					</view>
 				</template>
 				<template v-slot:body>
@@ -20,7 +23,7 @@
 						</view>
 					</view>
 				</template>
-				<template v-slot:footer>
+				<template v-if="tab !== 'bulk'" v-slot:footer>
 					<view class="list-item-footer">
 						<image class="image" src="/static/icons/call-gray.png" mode="widthFix"></image>
 						<image class="image" src="/static/icons/chat-gray.png" mode="widthFix"></image>
@@ -29,9 +32,11 @@
 			</uni-list-item>
 		</uni-list>
 		<view class="uni-loadmore" v-if="showLoadMore">{{loadMoreText}}</view>
-		<view @click="add()" class="float-btn">
+		<view v-if="tab !== 'bulk'" @click="add()" class="float-btn">
 			<image src="../../../../static/plus.png"></image>
 		</view>
+		<page-foot v-if="tab === 'bulk'" :tabs="tabs"></page-foot>
+		<page-members v-if="distributeShow" :selected="selected"></page-members>
 	</view>
 </template>
 <script>
@@ -42,6 +47,7 @@
 		dictSvc
 	} from "../../../../common/dictSvc"
 	import {
+		bulkTabs,
 		leadsDto,
 		enterpriseInfoDto,
 		leadsIntentionInfoDto,
@@ -79,13 +85,19 @@
 					updateTimeEnd: '',
 					pageNum: 1,
 					pageSize: 10
-				}
+				},
+				tab: null,
+				total: 0,
+				selected: {},
+				tabs: bulkTabs,
+				distributeShow: false
 			}
 		},
 		onLoad() {
 			this.initData();
 			this.initKeyMap();
-			uni.$on('paramsChange', this.paramsChange)
+			uni.$on('paramsChange', this.paramsChange);
+			uni.$on('footEvent', this.footEvent);
 		},
 		onUnload() {
 			this.max = 0,
@@ -110,6 +122,7 @@
 		},
 		beforeDestroy() {
 			uni.$off('paramsChange', this.paramsChange);
+			uni.$off('footEvent', this.footEvent);
 		},
 		methods: {
 			initData() {
@@ -119,8 +132,15 @@
 						item.short = item.customerName.slice(0, 1);
 					});
 					this.data = data;
+					this.total = res.total;
 					uni.stopPullDownRefresh();
 				});
+			},
+			footEvent(e) {
+				console.log(e);
+				if (e.code === 'distribute') {
+					this.distributeShow = true;
+				}
 			},
 			async initKeyMap() {
 				for (const key in this.map) {
@@ -139,8 +159,33 @@
 			},
 			paramsChange(e) {
 				console.log(e);
-				this.params = e;
-				this.initData();
+				if (e.type === 'tab') {
+					this.tab = e.data;
+				}
+				if (e.type === 'action') {
+					if(e.data === 'selectAll'){
+						let count = 0;
+						for(const key in this.selected){
+							if(this.selected[key]){
+								count = count + 1;
+							}
+						}
+						if(count === this.data.length){
+							this.selected = {};
+						}else {
+							const selected = {};
+							this.data.forEach(item=>{
+								selected[item.id] = item;
+							});
+							this.selected = selected;
+						}
+					
+					}
+				}
+				if (e.type === 'params') {
+					this.params = e.data;
+					this.initData();
+				}
 			},
 			setListData() {
 				let data = [];
@@ -152,12 +197,19 @@
 			},
 			link(item) {
 				console.log(item);
-				this.$router.push({
-					path: '/pages/dashboard/clue/item/item',
-					query: item
-				});
+				if (this.tab === 'bulk') {
+					this.$set(this.selected, item.id, this.selected[item.id] ? false : item);
+				} else {
+					this.$router.push({
+						path: '/pages/dashboard/clue/item/item',
+						query: {
+							id: item.id
+						}
+					});
+				}
+
 			},
-			add(){
+			add() {
 				this.$router.push({
 					path: '/pages/dashboard/clue/edit/edit?id=0',
 					query: {}

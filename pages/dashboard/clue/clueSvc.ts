@@ -14,6 +14,28 @@ export const clueSvc = {
 			});
 		});
 	},
+	pool: (data : any) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "POST",
+				url: env.prefix + `/leads/poolList`,
+				data
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
+	relations: (leadsId : string) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "GET",
+				url: env.prefix + `/leads/getLeadsRelationDataById`,
+				data: { leadsId }
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
 	item: (id : string) => {
 		return new Promise((resolve, reject) => {
 			return uni.request({
@@ -36,6 +58,17 @@ export const clueSvc = {
 			});
 		});
 	},
+	unique: (customerName : string) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "POST",
+				url: env.prefix + `/leads/duplicateCheck`,
+				data: { customerName }
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
 	update: (data : any) => {
 		return new Promise((resolve, reject) => {
 			return uni.request({
@@ -47,12 +80,34 @@ export const clueSvc = {
 			});
 		});
 	},
+	distribute: (leadsId : any, consultantId : any) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "POST",
+				url: env.prefix + `/leads/assignLeads`,
+				data: { leadsId, consultantId }
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
+	distributes: (leadsId : any, consultantAndAssignNum : any) => {
+		return new Promise((resolve, reject) => {
+			return uni.request({
+				method: "POST",
+				url: env.prefix + `/leads/batchAssignLeads`,
+				data: { leadsId, consultantAndAssignNum }
+			}).then((res : any) => {
+				return resolve(handleRes(res));
+			});
+		});
+	},
 	inPool: (ids : any) => {
 		return new Promise((resolve, reject) => {
 			return uni.request({
 				method: "POST",
 				url: env.prefix + `/leads/resetCommonPool`,
-				data: {ids}
+				data: { ids }
 			}).then((res : any) => {
 				return resolve(handleRes(res));
 			});

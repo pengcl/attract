@@ -83,11 +83,13 @@
 			}
 			uni.$on('inputChange', this.inputChange);
 			uni.$on('verifyChange', this.verifyChange);
+			uni.$on('blurChange', this.blurChange);
 			// this.initData();
 		},
 		beforeDestroy() {
 			uni.$off('inputChange', this.inputChange);
 			uni.$off('verifyChange', this.verifyChange);
+			uni.$off('blurChange', this.blurChange);
 			uni.$off('footEvent', this.footChange);
 		},
 		watch: {
@@ -123,6 +125,20 @@
 				}
 				this.$set(this.form, 'valid', result.isLegal);
 				this.$set(this.form, 'error', result.tips);
+			},
+			blurChange(e) {
+				console.log(e);
+				if (e.control === "customerName" && e.form === "leadsForm") {
+					if(this.id){
+						return false;
+					}
+					this.checkUnique(e.value);
+				}
+			},
+			checkUnique(e) {
+				clueSvc.unique(e).then(res => {
+					console.log(res);
+				});
 			},
 			inputChange(e) {
 				// console.log(e);
