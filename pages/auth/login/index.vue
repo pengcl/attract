@@ -139,6 +139,7 @@
 				return value;
 			},
 			submit() {
+				console.log(this.form);
 				if (!this.form.valid) {
 					return false;
 				}

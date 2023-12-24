@@ -13,7 +13,12 @@ export const handleRes = (res : any) => {
 	if (res.data.code === '200') {
 		return res.data.data;
 	} else {
-		handleError(res.data.msg);
+		console.log(res);
+		let error = res.data;
+		if(typeof res.data === 'string'){
+			error = JSON.parse(res.data);
+		}
+		handleError(error.msg);
 		return null
 	}
 }
