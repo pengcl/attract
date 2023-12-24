@@ -16,8 +16,8 @@ export const loginDto = {
 		type: 'input'
 	},
 	spaceCode: {
-		required: true,
-		value: '0',
+		required: false,
+		value: '',
 		label: '密码',
 		valid: false,
 		validates: null,
